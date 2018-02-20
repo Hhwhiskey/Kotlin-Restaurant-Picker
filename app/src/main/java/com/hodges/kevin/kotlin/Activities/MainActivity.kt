@@ -94,22 +94,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getTextFromEditRestaurantEditText(): String {
-        return addRestaurantEditText.text.toString()
-    }
-
-    private fun setDecisionText(restaurantName: String?) {
-        decisionTextView.text = restaurantName
-    }
-
-    private fun setButtonState(button: Button, isEnabled: Boolean) {
-        button.isEnabled = isEnabled
-
-        if (isEnabled) {
-            button.alpha = 1f
-        } else{
-            button.alpha = .25f
+    private fun isAtLeastOnePriceCategorySelected(): Boolean {
+        if (cheapCheckBox.isChecked || averageCheckBox.isChecked || priceyCheckBox.isChecked) {
+            return true
         }
+        return false
     }
 
     @SuppressLint("SetTextI18n")
@@ -126,35 +115,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRemoveAllButton() {
-
-        val restaurantLabel = "restaurant".pluralize(RestaurantListSingleton.list.size)
-        deleteAllRestaurantsButton.text = "Remove ${RestaurantListSingleton.list.size} $restaurantLabel"
-
-        if (RestaurantListSingleton.list.size == 0) {
-            deleteAllRestaurantsButton.visibility = View.INVISIBLE
-        } else {
-            deleteAllRestaurantsButton.visibility = View.VISIBLE
-        }
+    private fun getTextFromEditRestaurantEditText(): String {
+        return addRestaurantEditText.text.toString()
     }
 
-    private fun String.pluralize(count: Int): String? {
-        return if (count > 1) {
-            this + "s"
-        }else {
-            this
-        }
+    private fun setDecisionText(restaurantName: String?) {
+        decisionTextView.text = restaurantName
     }
 
-    private fun clearCurrentSelectionText() {
-        decisionTextView.text = ""
-    }
+    private fun setButtonState(button: Button, isEnabled: Boolean) {
+        button.isEnabled = isEnabled
 
-    private fun isAtLeastOnePriceCategorySelected(): Boolean {
-        if (cheapCheckBox.isChecked || averageCheckBox.isChecked || priceyCheckBox.isChecked) {
-            return true
+        if (isEnabled) {
+            button.alpha = 1f
+        } else{
+            button.alpha = .25f
         }
-        return false
     }
 
 //    fun getCheckedState() {
@@ -174,11 +150,35 @@ class MainActivity : AppCompatActivity() {
 //
 //    }
 
+    private fun setupRemoveAllButton() {
+
+        val restaurantLabel = "restaurant".pluralize(RestaurantListSingleton.list.size)
+        deleteAllRestaurantsButton.text = "Remove ${RestaurantListSingleton.list.size} $restaurantLabel"
+
+        if (RestaurantListSingleton.list.size == 0) {
+            deleteAllRestaurantsButton.visibility = View.INVISIBLE
+        } else {
+            deleteAllRestaurantsButton.visibility = View.VISIBLE
+        }
+    }
+
+    private fun clearCurrentSelectionText() {
+        decisionTextView.text = ""
+    }
+
     private fun determineDecisionButtonState() {
         if (!isAtLeastOnePriceCategorySelected()) {
             setButtonState(decideButton, false)
         } else {
             setButtonState(decideButton, true)
+        }
+    }
+
+    private fun String.pluralize(count: Int): String? {
+        return if (count > 1) {
+            this + "s"
+        }else {
+            this
         }
     }
 
@@ -260,15 +260,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun showNoRestaurantsAvailableDialog() {
-        val builder = AlertDialog.Builder(this)
-
-        builder.setTitle("Oops")
-        builder.setMessage("You don't have any restaurants at that price point. Add some now!")
-        builder.setPositiveButton("Ok", { _, _ ->  })
-        builder.show()
-    }
-
     private fun showPriceDialog() {
         val builder = AlertDialog.Builder(this)
 
@@ -290,14 +281,22 @@ class MainActivity : AppCompatActivity() {
                 .show()
     }
 
-//    private fun showNoOptionsAvailable() {
-//        val builder = AlertDialog.Builder(this)
-//        builder.setTitle("Oops")
-//        builder.setMessage("This restaurant is already on your list. Try adding another one!")
-//        builder.setPositiveButton("Ok", { _, _ ->  })
-//        builder.show()
-//    }
+    // Dialogs
+    private fun showAddedRestaurantToast() {
+        val restaurantLabel = "restaurant".pluralize(RestaurantListSingleton.list.size)
 
+        Toast.makeText(this, """${getTextFromEditRestaurantEditText()} added to list. You now have
+                |${RestaurantListSingleton.list.size} $restaurantLabel in your list.""".trimMargin(), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showNoRestaurantsAvailableDialog() {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Oops")
+        builder.setMessage("You don't have any restaurants at that price point. Add some now!")
+        builder.setPositiveButton("Ok", { _, _ ->  })
+        builder.show()
+    }
     private fun showRestaurantAlreadyAddedDialog() {
         val builder = AlertDialog.Builder(this)
 
@@ -305,11 +304,5 @@ class MainActivity : AppCompatActivity() {
         builder.setMessage("This restaurant is already on your list. Try adding another one!")
         builder.setPositiveButton("Ok", { _, _ ->  })
         builder.show()
-    }
-    private fun showAddedRestaurantToast() {
-        val restaurantLabel = "restaurant".pluralize(RestaurantListSingleton.list.size)
-
-        Toast.makeText(this, """${getTextFromEditRestaurantEditText()} added to list. You now have
-                |${RestaurantListSingleton.list.size} $restaurantLabel in your list.""".trimMargin(), Toast.LENGTH_SHORT).show()
     }
 }
